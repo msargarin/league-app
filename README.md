@@ -22,38 +22,32 @@ A complete app for all of your league's data needs.
 $ cd backend
 ```
 
-3. Install virtualenv.
+4. Install virtualenv.
 
 ```bash
 $ pip install virtualenv
 ```
 
-4. Create a virtual environment with virtualenv.
+5. Create a virtual environment with virtualenv.
 
 ```bash
 $ virtualenv env
 ```
 
-5. Install libraries specified in `requirements.txt`.
+6. Install libraries specified in `requirements.txt`.
 
 ```bash
 $ pip install -r requirements.txt
 ```
 
-5. Set environment variables by creating a `.env` file from `.env.example`.
-6. Create the database.
+7. Set environment variables by creating a `.env` file from `.env.example`.
+8. Create the database.
 
 ```bash
 $ python manage.py makemigrations
 ```
 
-7. Create a new superuser
-
-```bash
-$ python manage.py createuser
-```
-
-7. Run the development server
+9. Run the development server
 
 ```bash
 $ python manage.py runserver
