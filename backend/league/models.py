@@ -38,7 +38,7 @@ class Player(Person):
     '''
     A player is a person with a team
     '''
-    team = models.OneToOneField(
+    team = models.ForeignKey(
         Team,
         on_delete=models.CASCADE,
         related_name='players')
