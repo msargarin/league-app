@@ -55,17 +55,13 @@ class Game(models.Model):
         Team,
         on_delete=models.PROTECT,
         related_name='+')
-    team_a_score = models.PositiveIntegerField(
-        blank=True,
-        null=True)
+    team_a_score = models.PositiveIntegerField()
 
     team_b = models.ForeignKey(
         Team,
         on_delete=models.PROTECT,
         related_name='+')
-    team_b_score = models.PositiveIntegerField(
-        blank=True,
-        null=True)
+    team_b_score = models.PositiveIntegerField()
 
     next_game = models.ForeignKey(
         'self',
