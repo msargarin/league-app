@@ -1,5 +1,4 @@
 from django.test import TestCase
-from rest_framework.test import APITestCase
 
 from api.serializers import GameSerialier, TeamSerializer, PlayerSerializer, ReverseLeagueSerializer
 from league.models import Team, Game, Player
