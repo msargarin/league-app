@@ -8,7 +8,7 @@ class Person(models.Model):
     '''
     A person has a name
     '''
-    name = models.CharField(max_length=160)
+    name = models.CharField(max_length=160, unique=True)
 
     class Meta:
         abstract = True
@@ -18,7 +18,7 @@ class Team(models.Model):
     '''
     A team has a name and a coach
     '''
-    name = models.CharField(max_length=160)
+    name = models.CharField(max_length=160, unique=True)
     average_score = models.DecimalField(max_digits=4, decimal_places=1, default=Decimal('0.0'))
 
     def get_games(self):
