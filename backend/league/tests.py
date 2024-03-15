@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.test import TestCase
 
-from .models import Team, Game
+from league.models import Team, Game
 
 
 class ModelTests(TestCase):
