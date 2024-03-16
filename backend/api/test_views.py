@@ -64,23 +64,6 @@ class APIEndpointsTest(APITestCase):
         '''
         There must be an endpoint that returns all players in a team as a list
         '''
-        # NOTE: No need to test output since serializer has its own tests
-        #  and the view has no new custom behaviour
-
-        # Create team
-        team_a = Team.objects.create(name='Team A')
-
-        # Send request
-        url = reverse('player-list', args=[team_a.id])
-        response = self.client.get(url)
-
-        # Response should be OK
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_player_list_endpoint(self):
-        '''
-        There must be an endpoint that returns all players in a team as a list
-        '''
         # Create teams
         team_a = Team.objects.create(name='Team A')
         team_b = Team.objects.create(name='Team B')
@@ -93,7 +76,7 @@ class APIEndpointsTest(APITestCase):
         ])
 
         # Test for all players in a team
-        url = reverse('player-list', args=[team_a.id])
+        url = reverse('player-list', args=[team_a.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
 
@@ -123,6 +106,6 @@ class APIEndpointsTest(APITestCase):
         player = Player.objects.create(team=team, name='Player A')
 
         # Test endpoint
-        url = reverse('player-details', args=[player.id])
+        url = reverse('player-details', args=[player.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
