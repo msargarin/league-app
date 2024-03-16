@@ -41,7 +41,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['team', 'average_score', 'total_games_played']
+        fields = ['team', 'name', 'average_score', 'total_games_played']
 
 
 class ReverseLeagueSerializer(serializers.ModelSerializer):

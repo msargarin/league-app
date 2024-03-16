@@ -97,8 +97,9 @@ class APISerializerTests(TestCase):
         # Count should be the same
         self.assertEqual(players.count(), len(serializer.data))
 
-        # Serialized data should have team, average_score and total_games_played keys
+        # Serialized data should have team, name average_score and total_games_played keys
         self.assertIn('team', serializer.data[0])
+        self.assertIn('name', serializer.data[0])
         self.assertIn('average_score', serializer.data[0])
         self.assertIn('total_games_played', serializer.data[0])
 
