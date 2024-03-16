@@ -3,7 +3,7 @@ from rest_framework import serializers
 from league.models import Game, Team, Player
 
 
-class GameSerialier(serializers.ModelSerializer):
+class GameSerializer(serializers.ModelSerializer):
     '''
     Serializer for the Game model
     '''

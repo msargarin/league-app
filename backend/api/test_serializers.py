@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from api.serializers import GameSerialier, TeamSerializer, PlayerSerializer, ReverseLeagueSerializer
+from api.serializers import GameSerializer, TeamSerializer, PlayerSerializer, ReverseLeagueSerializer
 from league.models import Team, Game, Player
 
 
@@ -25,7 +25,7 @@ class APISerializerTests(TestCase):
         games = Game.objects.all()
 
         # Serialize
-        serializer = GameSerialier(games, many=True)
+        serializer = GameSerializer(games, many=True)
 
         # Count should be the same
         self.assertEqual(games.count(), len(serializer.data))
