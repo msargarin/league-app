@@ -58,3 +58,20 @@ class TeamCoachOrAdmin(permissions.BasePermission):
                 return True
 
         return False
+
+class PlayersTeamCoachOrAdmin(permissions.BasePermission):
+    '''
+    Permission to only allow access for the player's coach or an admin
+    '''
+    def has_object_permission(self, request, view, obj):
+        if hasattr(request.user, 'role'):
+            # Admin always has access
+            if request.user.role.lower() == ACCOUNT_LEVEL_ADMIN:
+                return True
+
+            # Coach only has access to his team
+            if request.user.role.lower() == ACCOUNT_LEVEL_COACH \
+                    and obj.team.name == request.user.team and obj.team.coach.name == request.user.name:
+                return True
+
+        return False

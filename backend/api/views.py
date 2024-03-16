@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 
 from api.serializers import ReverseLeagueSerializer, GameSerializer, TeamSerializer, PlayerSerializer
 from league.models import Game, Team, Player
-from league.permissions import IsAtLeastPlayer, IsAtLeastCoach, TeamCoachOrAdmin
+from league.permissions import IsAtLeastPlayer, IsAtLeastCoach, TeamCoachOrAdmin, PlayersTeamCoachOrAdmin
 
 class ReverseLeagueGameList(generics.RetrieveAPIView):
     '''
@@ -80,7 +80,7 @@ class PlayerDetails(generics.RetrieveAPIView):
     serializer_class = PlayerSerializer
     permission_classes = [
         permissions.IsAuthenticated,
-        IsAtLeastPlayer
+        PlayersTeamCoachOrAdmin
     ]
 
     lookup_url_kwarg = 'player_id'
