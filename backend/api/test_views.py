@@ -2,8 +2,6 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework_simplejwt.models import TokenUser
-from rest_framework_simplejwt.tokens import Token
-
 
 from league.models import Team, Game, Player, Coach
 
@@ -11,70 +9,40 @@ from league.models import Team, Game, Player, Coach
 class APIEndpointsTest(APITestCase):
     def setUp(self):
         '''
-        Create TokenUsers of different user types so they are available across all test in this test class
+        Create TokenUsers so they are available across all test in this test class
         '''
-        self.admin_user = TokenUser({
-            'name': 'John Doe',
-            'role': 'admin',
-            'team': None,
-        })  # Admin user
         self.player_user = TokenUser({
             'name': 'John Doe',
             'role': 'player',
             'team': 'Team Hello',
-        })  # Player user
-        self.coach_user = TokenUser({
-            'name': 'John Doe',
-            'role': 'coach',
-            'team': 'Team Hello',
-        })  # Coach user
+        })
 
     def test_reverse_league_endpoint(self):
         '''
         There must be an endpoint that returns all games in a league in a tree-like format
         '''
-        # Authenticate using a player user since players have lowest level of access
+        # We chose to authenticate with player but any role will do
         self.client.force_authenticate(user=self.player_user)
 
-
-        ## Test with empty database
-
-        # Send request
+        ## Empty database should return 404
         url = reverse('league-list')
         response = self.client.get(url)
-
-        # Response should be NOT FOUND
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
-        ## Test with populated database
-
+        ## Populated database should return expected format
         # Create teams
         team_a = Team.objects.create(name='Team A')
         team_b = Team.objects.create(name='Team B')
-        team_c = Team.objects.create(name='Team C')
-        team_d = Team.objects.create(name='Team D')
 
-        # Create games
-        game_semi1 = Game.objects.create(
+        # Create game
+        game = Game.objects.create(
             team_a=team_a, team_a_score=110,
-            team_b=team_b, team_b_score=100)  # Semi-finals game with teams A and B; A won
-        game_semi2 = Game.objects.create(
-            team_a=team_c, team_a_score=110,
-            team_b=team_d, team_b_score=100)  # Semi-finals game with teams C and D; C won
-        game_final = Game.objects.create(
-            team_a=team_a, team_a_score=110,
-            team_b=team_c, team_b_score=100)  # Finals game with teams A and C; A won
-
-        # Link final game to semi-final games
-        game_final.previous_games.add(game_semi1)
-        game_final.previous_games.add(game_semi2)
+            team_b=team_b, team_b_score=100)  # Finals game with teams A and B; A won
 
         # Send request
         url = reverse('league-list')
         response = self.client.get(url)
 
-        # Response should be OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_game_list_endpoint(self):
@@ -91,9 +59,9 @@ class APIEndpointsTest(APITestCase):
         url = reverse('game-list')
         response = self.client.get(url)
 
-        # Response should be OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    # TODO: Could be deleted if no longer needed
     def test_player_list_endpoint(self):
         '''
         There must be an endpoint that returns players as a list
@@ -117,14 +85,19 @@ class APIEndpointsTest(APITestCase):
         response = self.client.get(url)
         self.assertEqual(
             response.status_code,
-            status.HTTP_403_FORBIDDEN)  # Response should be FORBIDDEN since players have no access
+            status.HTTP_403_FORBIDDEN)
 
         # Send request using a coach user
-        self.client.force_authenticate(user=self.coach_user)
+        coach_user = TokenUser({
+            'name': 'John Doe',
+            'role': 'coach',
+            'team': 'Team Hello',
+        })
+        self.client.force_authenticate(user=coach_user)
         response = self.client.get(url)
         self.assertEqual(
             response.status_code,
-            status.HTTP_200_OK)  # Response should be OK
+            status.HTTP_200_OK)
 
         team_players = Player.objects.filter(team=team_a)
         self.assertEqual(
@@ -134,7 +107,7 @@ class APIEndpointsTest(APITestCase):
         # Test for all players regardless of team
         url = reverse('player-list')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         all_players = Player.objects.all()
         self.assertEqual(
@@ -148,7 +121,11 @@ class TeamDetailEndpointTest(APITestCase):
     '''
     def setUp(self):
         '''
-        Create team, player user and coach user so we no longer need to create them at the test functions
+        Set up does the following so the functions could run faster:
+        - creates a TokenUser with the `player` role
+        - creates a TokenUser with the `coach` role
+        - creates a Team
+        - creates a Coach assigned to the created team
         '''
         self.team_name = 'Team Hello'
 
@@ -168,48 +145,47 @@ class TeamDetailEndpointTest(APITestCase):
         self.coach = Coach.objects.create(name=self.coach_user.name, team=self.team)
         self.url = reverse('team-details', args=[self.team.pk])
 
-    def test_for_error(self):
+    def test_player_has_no_access(self):
         '''
-        Endpoint should return OK
+        Endpoint should block access from player users
         '''
-        # Authenticate using the coach user since coaches have lowest level of access to this view
-        self.client.force_authenticate(user=self.coach_user)
-
-        # Test endpoint
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
-
-    def test_at_least_coach_can_access(self):
-        '''
-        Endpoint should only be access to coaches and admins
-        '''
-        # Player accounts should have no access
         self.client.force_authenticate(user=self.player_user)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # Response should be FORBIDDEN
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        # Coach accounts should have access
+    def test_admin_always_has_access(self):
+        '''
+        Endpoint should allow access from admin users
+        '''
+        admin_user = TokenUser({
+            'name': 'John Doe',
+            'role': 'admin',
+            'team': None,
+        })
+
+        self.client.force_authenticate(user=admin_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_coach_can_access_own_team(self):
+        '''
+        A coach should be able to see his team's details
+        '''
         self.client.force_authenticate(user=self.coach_user)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_coach_can_only_access_own_team(self):
+    def test_coach_cannot_access_other_team(self):
         '''
-        A coach should only be able to see his team's details
+        A coach should not able to see his team's details
         '''
-        # Coach user should have access to his team's details
-        self.client.force_authenticate(user=self.coach_user)
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
-
-        # Coach user should not have access to other team's details
         other_team = Team.objects.create(name='Other team')
         Coach.objects.create(name='Other coach', team=other_team)
         other_url = reverse('team-details', args=[other_team.pk])
 
         self.client.force_authenticate(user=self.coach_user)
         response = self.client.get(other_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # Response should be FORBIDDEN
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PlayerDetailEndpointTest(APITestCase):
@@ -218,47 +194,59 @@ class PlayerDetailEndpointTest(APITestCase):
     '''
     def setUp(self):
         '''
-        Create team, player user and coach user so we no longer need to create them at the test functions
+        Set up does the following so the functions could run faster:
+        - creates a TokenUser with the `player` role
+        - creates a TokenUser with the `coach` role
+        - creates a Team
+        - creates a Coach assigned to the created team
+        - creates a Player assigned to the created team
         '''
         self.team_name = 'Team Hello'
 
-        # Create TokenUsers of different user types so they are available across all test in this test class
+        # Create a player and coach user so they are available across all test in this test class
         self.player_user = TokenUser({
             'name': 'John Doe',
             'role': 'player',
             'team': self.team_name,
-        })  # Player user
+        })
         self.coach_user = TokenUser({
             'name': 'John Doe',
             'role': 'coach',
             'team': self.team_name,
-        })  # Coach user
+        })
 
         self.team = Team.objects.create(name=self.team_name)
         self.coach = Coach.objects.create(name=self.coach_user.name, team=self.team)
         self.player = Player.objects.create(name=self.player_user.name, team=self.team)
         self.url = reverse('player-details', args=[self.player.pk])
 
-    def test_for_error(self):
+    def test_admin_always_has_access(self):
         '''
-        Endpoint should return OK
+        Endpoint should allow access from admin users
         '''
-        # Authenticate using the coach user since coaches have lowest level of access to this view
-        self.client.force_authenticate(user=self.coach_user)
+        admin_user = TokenUser({
+            'name': 'John Doe',
+            'role': 'admin',
+            'team': None,
+        })
 
-        # Test endpoint
+        self.client.force_authenticate(user=admin_user)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_coach_can_only_access_his_players(self):
+    def test_coach_can_access_own_teams_players(self):
         '''
-        A coach should only be able to see his team's players
+        A coach should be able to see his team's players
         '''
         # Coach user should have access to his team's player details
         self.client.force_authenticate(user=self.coach_user)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_coach_cannot_access_other_teams_players(self):
+        '''
+        A coach should not be able to see other team's players
+        '''
         # Coach user should not have access to other team's player details
         other_team = Team.objects.create(name='Other team')
         Coach.objects.create(name='Other coach', team=other_team)
@@ -267,4 +255,4 @@ class PlayerDetailEndpointTest(APITestCase):
 
         self.client.force_authenticate(user=self.coach_user)
         response = self.client.get(other_url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # Response should be FORBIDDEN
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
