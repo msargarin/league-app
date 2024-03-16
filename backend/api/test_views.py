@@ -1,14 +1,39 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
+from rest_framework_simplejwt.models import TokenUser
+from rest_framework_simplejwt.tokens import Token
+
 
 from league.models import Team, Game, Player
 
+
 class APIEndpointsTest(APITestCase):
+    def setUp(self):
+        # Create TokenUsers of different user types so they are available across all test in this test class
+        self.admin_user = TokenUser({
+            'name': 'John Doe',
+            'role': 'Admin',
+            'team': 'Team Hello',
+        })
+        self.player_user = TokenUser({
+            'name': 'John Doe',
+            'role': 'Player',
+            'team': 'Team Hello',
+        })
+        self.coach_user = TokenUser({
+            'name': 'John Doe',
+            'role': 'Coach',
+            'team': 'Team Hello',
+        })
+
     def test_reverse_league_endpoint(self):
         '''
         There must be an endpoint that returns all games in a league in a tree-like format
         '''
+        # Authenticate using a player user since players have least access
+        self.client.force_authenticate(user=self.player_user)
+
         ## Test when database is empty
         # Send request
         url = reverse('league-list')
@@ -53,6 +78,9 @@ class APIEndpointsTest(APITestCase):
         # NOTE: No need to test output since serializer has its own tests
         #  and the view has no new custom behaviour
 
+        # Authenticate using a player user since players have least access
+        self.client.force_authenticate(user=self.player_user)
+
         # Send request
         url = reverse('game-list')
         response = self.client.get(url)
@@ -62,7 +90,7 @@ class APIEndpointsTest(APITestCase):
 
     def test_player_list_endpoint(self):
         '''
-        There must be an endpoint that returns all players in a team as a list
+        There must be an endpoint that returns players as a list
         '''
         # Create teams
         team_a = Team.objects.create(name='Team A')
@@ -77,8 +105,20 @@ class APIEndpointsTest(APITestCase):
 
         # Test for all players in a team
         url = reverse('player-list', args=[team_a.pk])
+
+        # Send request using a player user
+        self.client.force_authenticate(user=self.player_user)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN)  # Response should be FORBIDDEN since players have no access
+
+        # Send request using a coach user
+        self.client.force_authenticate(user=self.coach_user)
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK)  # Response should be OK
 
         team_players = Player.objects.filter(team=team_a)
         self.assertEqual(
@@ -99,6 +139,9 @@ class APIEndpointsTest(APITestCase):
         '''
         There must be an endpoint that returns a player's details
         '''
+        # Authenticate using a player user since players have least access
+        self.client.force_authenticate(user=self.player_user)
+
         # Create team
         team = Team.objects.create(name='Team A')
 
