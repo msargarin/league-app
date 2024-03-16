@@ -1,0 +1,15 @@
+[run]
+source = .
+omit =
+  # omit asgi and wsgi config files
+  league/asgi.py
+  league/wsgi.py
+  manage.py
+
+[report]
+exclude_also =
+  def __repr__
+  if self.debug:
+  if settings.DEBUG
+  raise AssertionError
+  raise NotImplementedError
