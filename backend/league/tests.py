@@ -1,7 +1,9 @@
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.db.models import Q
 from django.test import TestCase
 
-from league.models import Team, Game
+from league.models import Team, Game, Coach, Player
 
 
 class ModelTests(TestCase):
@@ -73,3 +75,27 @@ class ModelTests(TestCase):
             Game.objects.filter(Q(team_a=team_a) | Q(team_b=team_a)),
             team_a.get_games(),
             ordered=False)
+
+
+class CommandTest(TestCase):
+    '''
+    Tests for Django Commands
+    '''
+    def test_populate_database_command(self):
+        call_command('populate_database', *[], **{})
+
+        # Should have created 16 teams
+        self.assertEqual(Team.objects.count(), 16)
+
+        # Should have created 16 coaches
+        self.assertEqual(Coach.objects.count(), 16)
+
+        # Should have created 160 players (16 * 10)
+        self.assertEqual(Player.objects.count(), 160)
+
+        # Should have created 15 games (8 + 4 + 2 + 1)
+        self.assertEqual(Game.objects.count(), 15)
+
+        # Should show an error if there is data available
+        with self.assertRaises(CommandError):
+             call_command('populate_database', *[], **{})
