@@ -41,6 +41,7 @@ class GameList(generics.ListAPIView):
         return Game.objects.all()
 
 
+# TODO: Could be deleted if no longer needed
 class PlayerList(generics.ListAPIView):
     '''
     Returns a list of all players in a team

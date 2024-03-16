@@ -11,6 +11,7 @@ urlpatterns = [
     path('games', GameList.as_view(), name='game-list'),
 
     # Endpoint for players list
+    # TODO: Could be deleted if no longer needed
     path('players', PlayerList.as_view(), name='player-list'),  # Players from all teams
     path('players/team/<int:team_id>', PlayerList.as_view(), name='player-list'),  # Players from a specific team
 
