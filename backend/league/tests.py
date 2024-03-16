@@ -35,6 +35,22 @@ class ModelTests(TestCase):
                 team_b=team_b,
                 team_b_score=same_score)
 
+    def test_game_winner(self):
+        '''
+        Winner in a game is the team with most points
+        '''
+        # Create teams
+        team_a = Team.objects.create(name='Team A')
+        team_b = Team.objects.create(name='Team B')
+
+        # Creating a game with teams A and B and with A having more points
+        game = Game.objects.create(
+            team_a=team_a,
+            team_a_score=110,
+            team_b=team_b,
+            team_b_score=100)
+        self.assertEqual(game.get_winning_team(), team_a)  # Team A wins
+
     def test_team_list_games(self):
         '''
         A team's games must be enumerable

@@ -71,16 +71,11 @@ class Game(models.Model):
         null=True)
 
     def get_winning_team(self):
-        winner = None
-        # Only check for a winner if there are scores
-        if self.team_a_score is not None and self.team_b_score is not None:
-            # Determine winner based on their scores
-            if self.team_a_score > self.team_b_score:
-                winner = self.team_a
-            else:
-                winner = self.team_b   # There are no ties in a basketball game!
-
-        return winner
+        # Determine winner based on their scores
+        if self.team_a_score > self.team_b_score:
+            return self.team_a
+        else:  # There are no ties in a basketball game!
+            return self.team_b
 
     def save(self, *args, **kwargs):
         # Raise value error if only 1 team is specified
