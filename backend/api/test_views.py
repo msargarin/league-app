@@ -13,28 +13,30 @@ class APIEndpointsTest(APITestCase):
         # Create TokenUsers of different user types so they are available across all test in this test class
         self.admin_user = TokenUser({
             'name': 'John Doe',
-            'role': 'Admin',
-            'team': 'Team Hello',
-        })
+            'role': 'admin',
+            'team': None,
+        })  # Admin user
         self.player_user = TokenUser({
             'name': 'John Doe',
-            'role': 'Player',
+            'role': 'player',
             'team': 'Team Hello',
-        })
+        })  # Player user
         self.coach_user = TokenUser({
             'name': 'John Doe',
-            'role': 'Coach',
+            'role': 'coach',
             'team': 'Team Hello',
-        })
+        })  # Coach user
 
     def test_reverse_league_endpoint(self):
         '''
         There must be an endpoint that returns all games in a league in a tree-like format
         '''
-        # Authenticate using a player user since players have least access
+        # Authenticate using a player user since players have lowest level of access
         self.client.force_authenticate(user=self.player_user)
 
-        ## Test when database is empty
+
+        ## Test with empty database
+
         # Send request
         url = reverse('league-list')
         response = self.client.get(url)
@@ -42,7 +44,9 @@ class APIEndpointsTest(APITestCase):
         # Response should be NOT FOUND
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        ## Test when database is populated
+
+        ## Test with populated database
+
         # Create teams
         team_a = Team.objects.create(name='Team A')
         team_b = Team.objects.create(name='Team B')
@@ -76,9 +80,9 @@ class APIEndpointsTest(APITestCase):
         There must be an endpoint that returns all games as a list
         '''
         # NOTE: No need to test output since serializer has its own tests
-        #  and the view has no new custom behaviour
+        #  and the view has no custom behaviour
 
-        # Authenticate using a player user since players have least access
+        # Authenticate using a player user since players have lowest access access
         self.client.force_authenticate(user=self.player_user)
 
         # Send request
@@ -135,12 +139,12 @@ class APIEndpointsTest(APITestCase):
             len(response.data),
             all_players.count())  # Count from response should be the same from db
 
-    def test_player_details_endpoint(self):
+    def test_team_details_endpoint(self):
         '''
-        There must be an endpoint that returns a player's details
+        There must be an endpoint that returns a team's details
         '''
-        # Authenticate using a player user since players have least access
-        self.client.force_authenticate(user=self.player_user)
+        # Authenticate using a coach user since coaches have lowest level of access
+        self.client.force_authenticate(user=self.coach_user)
 
         # Create team
         team = Team.objects.create(name='Team A')
@@ -149,6 +153,6 @@ class APIEndpointsTest(APITestCase):
         player = Player.objects.create(team=team, name='Player A')
 
         # Test endpoint
-        url = reverse('player-details', args=[player.pk])
+        url = reverse('team-details', args=[team.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
