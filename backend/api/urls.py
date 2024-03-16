@@ -1,6 +1,6 @@
 from django.urls import path
 
-from api.views import ReverseLeagueGameList, GameList, PlayerList, PlayerDetails
+from api.views import ReverseLeagueGameList, GameList, PlayerList, TeamDetails, PlayerDetails
 
 
 urlpatterns = [
@@ -13,6 +13,9 @@ urlpatterns = [
     # Endpoint for players list
     path('players', PlayerList.as_view(), name='player-list'),  # Players from all teams
     path('players/team/<int:team_id>', PlayerList.as_view(), name='player-list'),  # Players from a specific team
+
+    # Endpoint for team details
+    path('team/<int:team_id>', TeamDetails.as_view(), name='team-details'),  # Players from a specific team
 
     # Endpoint for player details
     path('player/<int:player_id>', PlayerDetails.as_view(), name='player-details'),  # Players from a specific team

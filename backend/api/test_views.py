@@ -156,3 +156,21 @@ class APIEndpointsTest(APITestCase):
         url = reverse('team-details', args=[team.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK
+
+    def test_player_details_endpoint(self):
+        '''
+        There must be an endpoint that returns a player's details
+        '''
+        # Authenticate using a player user since players have least access
+        self.client.force_authenticate(user=self.player_user)
+
+        # Create team
+        team = Team.objects.create(name='Team A')
+
+        # Create player
+        player = Player.objects.create(team=team, name='Player A')
+
+        # Test endpoint
+        url = reverse('player-details', args=[player.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)  # Response should be OK

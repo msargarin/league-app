@@ -1,8 +1,8 @@
 from django.http import Http404
 from rest_framework import generics, permissions
 
-from api.serializers import ReverseLeagueSerializer, GameSerializer, PlayerSerializer
-from league.models import Game, Player
+from api.serializers import ReverseLeagueSerializer, GameSerializer, TeamSerializer, PlayerSerializer
+from league.models import Game, Team, Player
 from league.permissions import IsAtLeastPlayer, IsAtLeastCoach
 
 class ReverseLeagueGameList(generics.RetrieveAPIView):
@@ -59,9 +59,22 @@ class PlayerList(generics.ListAPIView):
             return Player.objects.filter(team__id=team_id)
 
 
+class TeamDetails(generics.RetrieveAPIView):
+    '''
+    Returns a team's details
+    '''
+    serializer_class = TeamSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        IsAtLeastCoach
+    ]
+
+    lookup_url_kwarg = 'team_id'
+    queryset = Team.objects.all()
+
 class PlayerDetails(generics.RetrieveAPIView):
     '''
-    Returns a players details
+    Returns a player's details
     '''
     serializer_class = PlayerSerializer
     permission_classes = [
