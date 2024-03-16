@@ -1,6 +1,6 @@
 # Basketball League App
 
-A complete app for all of your league's data needs.
+A complete app for your league's data needs.
 
 <br/>
 
@@ -14,8 +14,8 @@ A complete app for all of your league's data needs.
 
 ### Setup the backend
 
-1. Install any supported python version [here](/https://www.python.org/downloads/).
-2. Download/clone the project.
+1. Download and install any supported python version from [here](/https://www.python.org/downloads/).
+2. Download/clone this [project](/https://github.com/msargarin/league-app/).
 3. Open a terminal or command prompt then navigate to the project's `backend` folder.
 
 ```bash
@@ -41,13 +41,20 @@ $ pip install -r requirements.txt
 ```
 
 7. Set environment variables by creating a `.env` file from `.env.example`.
-8. Create the database.
+
+8. Create database tables.
 
 ```bash
-$ python manage.py makemigrations
+$ python manage.py migrate
 ```
 
-9. Run the development server
+9. Create dummy data.
+
+```bash
+$ python manage.py populate_database
+```
+
+10. Run the development server
 
 ```bash
 $ python manage.py runserver
@@ -63,3 +70,5 @@ $ python manage.py runserver
 - Django
 - Django Rest Framework
 - python-dotenv
+- djangorestframework-simplejwt
+- coverage
