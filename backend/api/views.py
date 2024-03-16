@@ -40,6 +40,7 @@ class GameList(generics.ListAPIView):
     def get_queryset(self):
         return Game.objects.all()
 
+
 class PlayerList(generics.ListAPIView):
     '''
     Returns a list of all players in a team
@@ -66,12 +67,12 @@ class TeamDetails(generics.RetrieveAPIView):
     serializer_class = TeamSerializer
     permission_classes = [
         permissions.IsAuthenticated,
-        IsAtLeastCoach,
         TeamCoachOrAdmin
     ]
 
     lookup_url_kwarg = 'team_id'
     queryset = Team.objects.all()
+
 
 class PlayerDetails(generics.RetrieveAPIView):
     '''

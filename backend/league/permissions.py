@@ -35,13 +35,6 @@ class IsAtLeastCoach(RoleBasedPermission):
     min_role = ACCOUNT_LEVELS[ACCOUNT_LEVEL_COACH]
 
 
-class IsAtLeastAdmin(RoleBasedPermission):
-    '''
-    Permission to only allow access to admin
-    '''
-    min_role = ACCOUNT_LEVELS[ACCOUNT_LEVEL_ADMIN]
-
-
 class TeamCoachOrAdmin(permissions.BasePermission):
     '''
     Permission to only allow access for a team's coach or an admin
