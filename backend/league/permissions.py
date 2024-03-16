@@ -40,3 +40,21 @@ class IsAtLeastAdmin(RoleBasedPermission):
     Permission to only allow access to admin
     '''
     min_role = ACCOUNT_LEVELS[ACCOUNT_LEVEL_ADMIN]
+
+
+class TeamCoachOrAdmin(permissions.BasePermission):
+    '''
+    Permission to only allow access for a team's coach or an admin
+    '''
+    def has_object_permission(self, request, view, obj):
+        if hasattr(request.user, 'role'):
+            # Admin always has access
+            if request.user.role.lower() == ACCOUNT_LEVEL_ADMIN:
+                return True
+
+            # Coach only has access to his team
+            if request.user.role.lower() == ACCOUNT_LEVEL_COACH \
+                    and obj.name == request.user.team and obj.coach.name == request.user.name:
+                return True
+
+        return False
