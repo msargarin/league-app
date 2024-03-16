@@ -7,6 +7,8 @@ class GameSerializer(serializers.ModelSerializer):
     '''
     Serializer for the Game model
     '''
+    team_a = serializers.ReadOnlyField(source='team_a.name')
+    team_b = serializers.ReadOnlyField(source='team_b.name')
     class Meta:
         model = Game
         fields = ['team_a', 'team_a_score', 'team_b', 'team_b_score']

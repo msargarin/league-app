@@ -21,20 +21,25 @@ class APISerializerTests(TestCase):
             Game(team_a=team_b, team_a_score=100, team_b=team_c, team_b_score=110),  # Game with teams B and C
         ])
 
-        # Query games
+        # Query games from db then serialize
         games = Game.objects.all()
-
-        # Serialize
         serializer = GameSerializer(games, many=True)
 
         # Count should be the same
         self.assertEqual(games.count(), len(serializer.data))
 
         # Serialized data should have team_a, team_a_score, team_b and team_b_score keys
-        self.assertIn('team_a', serializer.data[0])
-        self.assertIn('team_a_score', serializer.data[0])
-        self.assertIn('team_b', serializer.data[0])
-        self.assertIn('team_b_score', serializer.data[0])
+        serialized_game = serializer.data[0]
+        self.assertIn('team_a', serialized_game)
+        self.assertIn('team_a_score', serialized_game)
+        self.assertIn('team_b', serialized_game)
+        self.assertIn('team_b_score', serialized_game)
+
+        # Serialized game should have team names
+        game = games.first()
+        serializer = GameSerializer(game)
+        self.assertEqual(game.team_a.name, serializer.data['team_a'])
+        self.assertEqual(game.team_b.name, serializer.data['team_b'])
 
     def test_team_serializer(self):
         '''
