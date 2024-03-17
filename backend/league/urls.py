@@ -6,8 +6,5 @@ from django.urls import path, include
 
 
 urlpatterns = [
-    # Django admin
-    path('admin/', admin.site.urls),
-
     path('', include('api.urls')),
 ]
