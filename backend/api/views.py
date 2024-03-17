@@ -1,9 +1,18 @@
+import random
+
 from django.http import Http404
 from rest_framework import generics, permissions
+from rest_framework.exceptions import ParseError
+from rest_framework.response import Response
+from rest_framework_simplejwt.models import TokenUser
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.views import APIView
 
 from api.serializers import ReverseLeagueSerializer, GameSerializer, TeamSerializer, PlayerSerializer
-from league.models import Game, Team, Player
-from league.permissions import IsAtLeastPlayer, IsAtLeastCoach, TeamCoachOrAdmin, PlayersTeamCoachOrAdmin
+from league.models import Game, Team, Player, Coach
+from league.permissions import (
+    IsAtLeastPlayer, IsAtLeastCoach, TeamCoachOrAdmin, PlayersTeamCoachOrAdmin, ACCOUNT_LEVEL_ADMIN,
+    ACCOUNT_LEVEL_COACH, ACCOUNT_LEVEL_PLAYER)
 
 class ReverseLeagueGameList(generics.RetrieveAPIView):
     '''
@@ -87,3 +96,50 @@ class PlayerDetails(generics.RetrieveAPIView):
 
     lookup_url_kwarg = 'player_id'
     queryset = Player.objects.all()
+
+
+class AccessTokenGenerator(APIView):
+    '''
+    Returns a dummy access token based on requested role which can be used for authorization
+    '''
+    authentication_classes = []  # Override default authentication
+    permission_classes = []  # Override default permissions
+    http_method_names = ['post']
+
+    def post(self, request, format=None):
+        '''
+        Returns an access token with claims matching the provided role
+        '''
+        if 'role' not in request.data:
+            raise ParseError(detail='Role not provided in payload')
+        else:
+            role = request.data['role']
+            if role == ACCOUNT_LEVEL_ADMIN:
+                name = 'Mike A'
+                team = None
+            elif role == ACCOUNT_LEVEL_COACH:
+                coach = random.choice(Coach.objects.select_related().all())
+                name = coach.name
+                team = coach.team.name
+            elif role == ACCOUNT_LEVEL_PLAYER:
+                player = random.choice(Player.objects.select_related().all())
+                name = player.name
+                team = player.team.name
+            else:
+                raise ParseError(detail='Specified role is unrecognized')
+
+        user = TokenUser({
+            'user_id': '{}/{}'.format(name, role),
+            'name': name,
+            'team': team,
+            'role': role,
+        })
+        token = AccessToken.for_user(user)
+
+        return Response({
+            'status': 200,
+            'name': name,
+            'team': team,
+            'role': role,
+            'access_token': str(token),
+        })

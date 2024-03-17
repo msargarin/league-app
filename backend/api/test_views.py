@@ -256,3 +256,32 @@ class PlayerDetailEndpointTest(APITestCase):
         self.client.force_authenticate(user=self.coach_user)
         response = self.client.get(other_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AccessTokenEndpointTest(APITestCase):
+    '''
+    Tests for the access token endpoint
+    '''
+    def test_payload_checks(self):
+        url = reverse('access-token-generator')
+
+        # Must reject when there is no payload
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Must reject when role in payload is unreognized
+        response = self.client.post(url, { 'role': 'unrecognized_role' })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_returns_access_token(self):
+        # Create data
+        team = Team.objects.create(name='Team Hello')
+        Coach.objects.create(name='Coach', team=team)
+        Player.objects.create(name='Player', team=team)
+
+        url = reverse('access-token-generator')
+        response = self.client.post(url, { 'role': 'admin' })
+        self.assertIn('name', response.data)
+        self.assertIn('team', response.data)
+        self.assertIn('role', response.data)
+        self.assertIn('access_token', response.data)
