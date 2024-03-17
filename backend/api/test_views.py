@@ -293,7 +293,7 @@ class AccessTokenEndpointTest(APITestCase):
         self.assertIn('access_token', response.data)
 
         # Test player
-        response = self.client.post(url, { 'role': 'admin' })
+        response = self.client.post(url, { 'role': 'player' })
         self.assertIn('name', response.data)
         self.assertIn('team', response.data)
         self.assertIn('role', response.data)
