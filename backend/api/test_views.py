@@ -17,19 +17,16 @@ class APIEndpointsTest(APITestCase):
             'team': 'Team Hello',
         })
 
-    def test_reverse_league_endpoint(self):
+    def test_games_per_round_list_endpoint(self):
         '''
         There must be an endpoint that returns all games in a league in a tree-like format
         '''
+        # NOTE: No need to test output since serializer has its own tests
+        #  and the view has no custom behaviour
+
         # We chose to authenticate with player but any role will do
         self.client.force_authenticate(user=self.player_user)
 
-        ## Empty database should return 404
-        url = reverse('league-list')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        ## Populated database should return expected format
         # Create teams
         team_a = Team.objects.create(name='Team A')
         team_b = Team.objects.create(name='Team B')
@@ -40,7 +37,7 @@ class APIEndpointsTest(APITestCase):
             team_b=team_b, team_b_score=100)  # Finals game with teams A and B; A won
 
         # Send request
-        url = reverse('league-list')
+        url = reverse('games-per-round-list')
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -280,6 +277,22 @@ class AccessTokenEndpointTest(APITestCase):
         Player.objects.create(name='Player', team=team)
 
         url = reverse('access-token-generator')
+
+        # Test admin
+        response = self.client.post(url, { 'role': 'admin' })
+        self.assertIn('name', response.data)
+        self.assertIn('team', response.data)
+        self.assertIn('role', response.data)
+        self.assertIn('access_token', response.data)
+
+        # Test coach
+        response = self.client.post(url, { 'role': 'coach' })
+        self.assertIn('name', response.data)
+        self.assertIn('team', response.data)
+        self.assertIn('role', response.data)
+        self.assertIn('access_token', response.data)
+
+        # Test player
         response = self.client.post(url, { 'role': 'admin' })
         self.assertIn('name', response.data)
         self.assertIn('team', response.data)

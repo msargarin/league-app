@@ -1,6 +1,5 @@
 import random
 
-from django.http import Http404
 from rest_framework import generics, permissions
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
@@ -8,31 +7,22 @@ from rest_framework_simplejwt.models import TokenUser
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.views import APIView
 
-from api.serializers import ReverseLeagueSerializer, GameSerializer, TeamSerializer, PlayerSerializer
+from api.serializers import GamesPerRoundSerializer, GameSerializer, TeamSerializer, PlayerSerializer
 from league.models import Game, Team, Player, Coach
 from league.permissions import (
     IsAtLeastPlayer, IsAtLeastCoach, TeamCoachOrAdmin, PlayersTeamCoachOrAdmin, ACCOUNT_LEVEL_ADMIN,
     ACCOUNT_LEVEL_COACH, ACCOUNT_LEVEL_PLAYER)
 
-class ReverseLeagueGameList(generics.RetrieveAPIView):
+class GamesPerRoundList(APIView):
     '''
-    Returns a tree-like object of all games in a league starting with the finals game
+    Returns lists of games grouped per round
     '''
-    serializer_class = ReverseLeagueSerializer
     permission_classes = [
         permissions.IsAuthenticated,
         IsAtLeastPlayer
     ]
-
-    def get_object(self):
-        '''
-        Set target object to the final game
-        '''
-        finals_game = Game.objects.filter(next_game__isnull=True)
-        if finals_game.exists():
-            return finals_game.get()
-        else:
-            raise Http404
+    def get(self, request, format=None):
+        return Response(GamesPerRoundSerializer(Game.objects.all()).data)
 
 
 class GameList(generics.ListAPIView):

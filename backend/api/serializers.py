@@ -44,21 +44,31 @@ class PlayerSerializer(serializers.ModelSerializer):
         fields = ['team', 'name', 'average_score', 'total_games_played']
 
 
-class ReverseLeagueSerializer(serializers.ModelSerializer):
+class GamesPerRoundSerializer(serializers.ListSerializer):
     '''
     Serializer for the League's game progression
     '''
-    team_a = serializers.ReadOnlyField(source='team_a.name')
-    team_b = serializers.ReadOnlyField(source='team_b.name')
-    previous_games = serializers.SerializerMethodField("get_previous_games")
+    def __init__(self, *args, **kwargs):
+        self.child = GameSerializer()
+        super().__init__(*args, **kwargs)
 
-    def get_previous_games(self, obj):
-        if obj.previous_games.exists():
-            serializer = self.__class__(obj.previous_games.all(), many=True)
-            return serializer.data
-        else:
-            return []
+    def to_representation(self, instance):
+        # Games from first round
+        games = instance.filter(previous_games__isnull=True)
 
-    class Meta:
-        model = Game
-        fields = ['team_a', 'team_a_score', 'team_b', 'team_b_score', 'previous_games']
+        league_games = []
+        # Determine games from every round until finals
+        while len(games) != 0:
+            # Add current round's games to our list
+            league_games.append(GameSerializer(games, many=True).data)
+
+            # Find all games in next round
+            next_round = []
+            for game in games:
+                if game.next_game is not None and game.next_game not in next_round:
+                    next_round.append(game.next_game)
+
+            # Treat next round as our current round
+            games = next_round
+
+        return league_games

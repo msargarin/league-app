@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from api.serializers import GameSerializer, TeamSerializer, PlayerSerializer, ReverseLeagueSerializer
+from api.serializers import GameSerializer, TeamSerializer, PlayerSerializer, GamesPerRoundSerializer
 from league.models import Team, Game, Player
 
 
@@ -103,11 +103,10 @@ class APISerializerTests(TestCase):
         self.assertIn('average_score', serializer.data[0])
         self.assertIn('total_games_played', serializer.data[0])
 
-    def test_reverse_league_serializer(self):
+    def test_games_per_round_serializer(self):
         '''
-        Game serializer that maps all the games from the finals to the first qualifying round.
-         Returns a tree-like structure with the finals game at the top and the first qualifying
-         round games at the bottom.
+        Game serializer that maps all the games from all rounds.
+         Returns lists of games from each round; one list per round starting from the first.
         '''
         # Create teams
         team_a = Team.objects.create(name='Team A')
@@ -131,30 +130,35 @@ class APISerializerTests(TestCase):
         game_final.previous_games.add(game_semi2)
 
         # Serialize starting with the finals game
-        serializer = ReverseLeagueSerializer(game_final)
+        serializer = GamesPerRoundSerializer(Game.objects.all())
 
         # Serialized data should be tree-like
-        expected_data = {
-            'team_a': game_final.team_a.name,
-            'team_a_score': game_final.team_a_score,
-            'team_b': game_final.team_b.name,
-            'team_b_score': game_final.team_b_score,
-            'previous_games': [
+        expected_data = [
+            # First round
+            [
                 {
                     'team_a': game_semi1.team_a.name,
                     'team_a_score': game_semi1.team_a_score,
                     'team_b': game_semi1.team_b.name,
                     'team_b_score': game_semi1.team_b_score,
-                    'previous_games': [],
                 },
                 {
                     'team_a': game_semi2.team_a.name,
                     'team_a_score': game_semi2.team_a_score,
                     'team_b': game_semi2.team_b.name,
                     'team_b_score': game_semi2.team_b_score,
-                    'previous_games': [],
+                }
+            ],
+
+            # Final round
+            [
+                {
+                    'team_a': game_final.team_a.name,
+                    'team_a_score': game_final.team_a_score,
+                    'team_b': game_final.team_b.name,
+                    'team_b_score': game_final.team_b_score
                 }
             ]
-        }
+        ]
 
-        self.assertDictEqual(serializer.data, expected_data)
+        self.assertListEqual(serializer.data, expected_data)

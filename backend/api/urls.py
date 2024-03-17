@@ -1,6 +1,6 @@
 from django.urls import path
 
-from api.views import ReverseLeagueGameList, GameList, PlayerList, TeamDetails, PlayerDetails, AccessTokenGenerator
+from api.views import GamesPerRoundList, GameList, PlayerList, TeamDetails, PlayerDetails, AccessTokenGenerator
 
 
 urlpatterns = [
@@ -8,7 +8,7 @@ urlpatterns = [
     path('token', AccessTokenGenerator.as_view(), name='access-token-generator'),
 
     # Endpoint for reverse league games
-    path('games/league', ReverseLeagueGameList.as_view(), name='league-list'),
+    path('games/per-round', GamesPerRoundList.as_view(), name='games-per-round-list'),
 
     # Endpoint for games list
     path('games', GameList.as_view(), name='game-list'),
