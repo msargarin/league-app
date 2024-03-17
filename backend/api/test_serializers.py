@@ -76,6 +76,10 @@ class APISerializerTests(TestCase):
         self.assertIn('name', serialized_team.data)
         self.assertIn('average_score', serialized_team.data)
         self.assertIn('players', serialized_team.data)
+        self.assertIn('pk', serialized_team.data['players'][0])
+        self.assertIn('name', serialized_team.data['players'][0])
+        self.assertIn('average_score', serialized_team.data['players'][0])
+        self.assertIn('total_games_played', serialized_team.data['players'][0])
 
     def test_player_serializer(self):
         '''

@@ -30,7 +30,12 @@ class PlayerListingField(serializers.RelatedField):
     Custom class for listing players of a team
     '''
     def to_representation(self, value):
-        return value.name
+        return {
+            'pk': value.pk,
+            'name': value.name,
+            'average_score': value.average_score,
+            'total_games_played': value.total_games_played,
+        }
 
 
 class TeamSerializer(serializers.ModelSerializer):
