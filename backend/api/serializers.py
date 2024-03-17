@@ -10,9 +10,19 @@ class GameSerializer(serializers.ModelSerializer):
     '''
     team_a = serializers.ReadOnlyField(source='team_a.name')
     team_b = serializers.ReadOnlyField(source='team_b.name')
+    team_a_pk = serializers.ReadOnlyField(source='team_a.pk')
+    team_b_pk = serializers.ReadOnlyField(source='team_b.pk')
+
     class Meta:
         model = Game
-        fields = ['pk', 'team_a', 'team_a_score', 'team_b', 'team_b_score']
+        fields = [
+            'pk',
+            'team_a',
+            'team_a_pk',
+            'team_a_score',
+            'team_b',
+            'team_b_pk',
+            'team_b_score']
 
 
 class PlayerListingField(serializers.RelatedField):

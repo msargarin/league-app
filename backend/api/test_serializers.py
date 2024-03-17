@@ -32,8 +32,10 @@ class APISerializerTests(TestCase):
         serialized_game = serializer.data[0]
         self.assertIn('pk', serialized_game)
         self.assertIn('team_a', serialized_game)
+        self.assertIn('team_a_pk', serialized_game)
         self.assertIn('team_a_score', serialized_game)
         self.assertIn('team_b', serialized_game)
+        self.assertIn('team_b_pk', serialized_game)
         self.assertIn('team_b_score', serialized_game)
 
         # Serialized game should have team names
@@ -140,15 +142,19 @@ class APISerializerTests(TestCase):
                 {
                     'pk': game_semi1.pk,
                     'team_a': game_semi1.team_a.name,
+                    'team_a_pk': game_semi1.team_a.pk,
                     'team_a_score': game_semi1.team_a_score,
                     'team_b': game_semi1.team_b.name,
+                    'team_b_pk': game_semi1.team_b.pk,
                     'team_b_score': game_semi1.team_b_score,
                 },
                 {
                     'pk': game_semi2.pk,
                     'team_a': game_semi2.team_a.name,
+                    'team_a_pk': game_semi2.team_a.pk,
                     'team_a_score': game_semi2.team_a_score,
                     'team_b': game_semi2.team_b.name,
+                    'team_b_pk': game_semi2.team_b.pk,
                     'team_b_score': game_semi2.team_b_score,
                 }
             ],
@@ -158,8 +164,10 @@ class APISerializerTests(TestCase):
                 {
                     'pk': game_final.pk,
                     'team_a': game_final.team_a.name,
+                    'team_a_pk': game_final.team_a.pk,
                     'team_a_score': game_final.team_a_score,
                     'team_b': game_final.team_b.name,
+                    'team_b_pk': game_final.team_b.pk,
                     'team_b_score': game_final.team_b_score
                 }
             ]
