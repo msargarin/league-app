@@ -98,4 +98,4 @@ class CommandTest(TestCase):
 
         # Should show an error if there is data available
         with self.assertRaises(CommandError):
-             call_command('populate_database', *[], **{})
+            call_command('populate_database', *[], **{})
