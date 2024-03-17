@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from league.models import Game, Team, Player
@@ -11,7 +12,7 @@ class GameSerializer(serializers.ModelSerializer):
     team_b = serializers.ReadOnlyField(source='team_b.name')
     class Meta:
         model = Game
-        fields = ['team_a', 'team_a_score', 'team_b', 'team_b_score']
+        fields = ['pk', 'team_a', 'team_a_score', 'team_b', 'team_b_score']
 
 
 class PlayerListingField(serializers.RelatedField):
@@ -54,21 +55,32 @@ class GamesPerRoundSerializer(serializers.ListSerializer):
 
     def to_representation(self, instance):
         # Games from first round
-        games = instance.filter(previous_games__isnull=True)
+        games = instance.filter(next_game__isnull=True)
 
         league_games = []
         # Determine games from every round until finals
         while len(games) != 0:
             # Add current round's games to our list
-            league_games.append(GameSerializer(games, many=True).data)
+            league_games.insert(0, GameSerializer(games, many=True).data)
 
-            # Find all games in next round
-            next_round = []
+            # Find all games in previous round
+            prev_round = []
             for game in games:
-                if game.next_game is not None and game.next_game not in next_round:
-                    next_round.append(game.next_game)
+                if game.previous_games.exists():
+                    # We will specifically add team a's previous game first so that winners in previous games
+                    # will follow the same order as the teams in the succeeding games
 
-            # Treat next round as our current round
-            games = next_round
+                    # Append previous game of team a
+                    prev_round.append(
+                        game.previous_games.filter(Q(team_a=game.team_a) | Q(team_b=game.team_a)).get()
+                    )
+
+                    # Append previous game of team b
+                    prev_round.append(
+                        game.previous_games.filter(Q(team_a=game.team_b) | Q(team_b=game.team_b)).get()
+                    )
+
+            # Treat previous round as our current round
+            games = prev_round
 
         return league_games
