@@ -1,8 +1,12 @@
 import { DarkThemeToggle, Navbar, Dropdown, Avatar } from "flowbite-react";
+import { useNavigate } from "react-router";
 
 const AppNavbar = function ({ user, setUser }) {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     setUser(null);
+    navigate("/");
   };
 
   return (
@@ -30,7 +34,7 @@ const AppNavbar = function ({ user, setUser }) {
             <span className="block text-sm">{user.name}</span>
             <span className="block truncate text-sm font-medium">
               {user.role}
-              {user.role == "admin" ? "" : `at ${user.team}`}
+              {user.role == "admin" ? "" : ` at ${user.team}`}
             </span>
           </Dropdown.Header>
           <Dropdown.Item onClick={handleLogout}>Sign out</Dropdown.Item>

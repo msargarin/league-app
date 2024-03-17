@@ -3,14 +3,28 @@ import { useRef } from "react";
 
 const LoginPage = function ({ setUser }) {
   const roleSelect = useRef();
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    console.log(`logging in as ${roleSelect.current.value}`);
-    setUser({
-      name: "Mike A",
-      role: roleSelect.current.value,
-      team: roleSelect.current.value == "admin" ? null : "Team Hello",
+    // Request for access token based on selected role
+    await fetch("http://localhost:8000/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ role: roleSelect.current.value }),
+    }).then((res) => {
+      if (res.ok) {
+        res.json().then((data) => {
+          // Set user to 'authenticated' user
+          setUser({
+            name: data.name,
+            team: data.team,
+            role: data.role,
+            token: data.access_token,
+          });
+        });
+      }
     });
   };
 
@@ -30,21 +44,22 @@ const LoginPage = function ({ setUser }) {
         horizontal
         className="w-full md:max-w-screen-sm [&>img]:hidden md:[&>img]:w-96 md:[&>img]:p-0 md:[&>*]:w-full md:[&>*]:p-16 lg:[&>img]:block"
       >
-        <h1 className="mb-3 text-2xl font-bold dark:text-white md:text-3xl">
-          Sign in
-        </h1>
         <form onSubmit={(e) => handleLogin(e)}>
           <div className="mb-4 flex flex-col gap-y-3">
-            <Label htmlFor="role">Choose your role</Label>
+            <Label htmlFor="role">
+              <h1 className="mb-3 text-2xl font-bold dark:text-white md:text-3xl">
+                Choose your role
+              </h1>
+            </Label>
             <Select id="role" ref={roleSelect} required>
-              <option>admin</option>
-              <option>coach</option>
-              <option>player</option>
+              <option value="admin">Admin</option>
+              <option value="coach">Coach</option>
+              <option value="player">Player</option>
             </Select>
           </div>
           <div className="mb-6">
-            <Button type="submit" className="w-full lg:w-auto">
-              Login to your account
+            <Button type="submit" className="w-full">
+              Login
             </Button>
           </div>
         </form>

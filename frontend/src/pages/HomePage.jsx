@@ -1,8 +1,16 @@
 import { Alert, Breadcrumb } from "flowbite-react";
 import { HiInformationCircle } from "react-icons/hi";
 import Bracket from "../components/Bracket";
+import { useEffect, useState } from "react";
+import { callApi } from "../utils/api";
 
 const HomePage = function ({ user }) {
+  const [games, setGames] = useState(null);
+
+  useEffect(() => {
+    callApi("http://localhost:8000/games/per-round", user.token, setGames);
+  }, []);
+
   return (
     <div className="mb-4 w-full">
       <Breadcrumb className="mb-4">
@@ -29,7 +37,7 @@ const HomePage = function ({ user }) {
         ""
       )}
 
-      <Bracket />
+      <Bracket user={user} games={games} />
     </div>
   );
 };

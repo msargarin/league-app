@@ -162,9 +162,6 @@
 .bracket-theme-dark .team {
   overflow: hidden;
 }
-.bracket-theme-dark .team:hover {
-  cursor: pointer;
-}
 .bracket-theme-dark .winner-top .match-top.team:hover,
 .bracket-theme-dark .winner-bottom .match-bottom.team:hover {
   background: #687c9d;
