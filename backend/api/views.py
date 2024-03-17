@@ -119,12 +119,12 @@ class AccessTokenGenerator(APIView):
                 raise ParseError(detail='Specified role is unrecognized')
 
         user = TokenUser({
-            'user_id': '{}/{}'.format(name, role),
-            'name': name,
-            'team': team,
-            'role': role,
+            'user_id': '{}/{}'.format(name.replace(' ', ''), role),
         })
         token = AccessToken.for_user(user)
+        token['name'] = name
+        token['team'] = team
+        token['role'] = role
 
         return Response({
             'status': 200,
