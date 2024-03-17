@@ -54,10 +54,11 @@ class PlayerSerializer(serializers.ModelSerializer):
     Serializer for the Player model
     '''
     team = serializers.ReadOnlyField(source='team.name')
+    team_pk = serializers.ReadOnlyField(source='team.pk')
 
     class Meta:
         model = Player
-        fields = ['team', 'name', 'average_score', 'total_games_played']
+        fields = ['team', 'team_pk', 'name', 'average_score', 'total_games_played']
 
 
 class GamesPerRoundSerializer(serializers.ListSerializer):
