@@ -139,6 +139,7 @@ REST_FRAMEWORK = {
 
 # SimpleJWT Settings
 SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
     'VERIFYING_KEY': SECRET_KEY,
 }
 

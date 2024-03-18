@@ -284,6 +284,7 @@ class AccessTokenEndpointTest(APITestCase):
         self.assertIn('team', response.data)
         self.assertIn('role', response.data)
         self.assertIn('access_token', response.data)
+        self.assertIn('refresh_token', response.data)
 
         # Test coach
         response = self.client.post(url, { 'role': 'coach' })
@@ -291,6 +292,7 @@ class AccessTokenEndpointTest(APITestCase):
         self.assertIn('team', response.data)
         self.assertIn('role', response.data)
         self.assertIn('access_token', response.data)
+        self.assertIn('refresh_token', response.data)
 
         # Test player
         response = self.client.post(url, { 'role': 'player' })
@@ -298,3 +300,4 @@ class AccessTokenEndpointTest(APITestCase):
         self.assertIn('team', response.data)
         self.assertIn('role', response.data)
         self.assertIn('access_token', response.data)
+        self.assertIn('refresh_token', response.data)

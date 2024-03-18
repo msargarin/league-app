@@ -1,11 +1,13 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from api.views import GamesPerRoundList, GameList, PlayerList, TeamDetails, PlayerDetails, AccessTokenGenerator
 
 
 urlpatterns = [
     # Endpoint for access token generation
-    path('token', AccessTokenGenerator.as_view(), name='access-token-generator'),
+    path('token/access', AccessTokenGenerator.as_view(), name='access-token-generator'),
+    path('token/refresh', TokenRefreshView.as_view(), name='token-refresh'),
 
     # Endpoint for reverse league games
     path('games/per-round', GamesPerRoundList.as_view(), name='games-per-round-list'),

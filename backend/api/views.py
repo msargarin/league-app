@@ -4,7 +4,7 @@ from rest_framework import generics, permissions
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework_simplejwt.models import TokenUser
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
 from api.serializers import GamesPerRoundSerializer, GameSerializer, TeamSerializer, PlayerSerializer
@@ -103,6 +103,7 @@ class AccessTokenGenerator(APIView):
         if 'role' not in request.data:
             raise ParseError(detail='Role not provided in payload')
         else:
+            # Set correct token payload based on requested role
             role = request.data['role']
             if role == ACCOUNT_LEVEL_ADMIN:
                 name = 'Mike A'
@@ -118,18 +119,20 @@ class AccessTokenGenerator(APIView):
             else:
                 raise ParseError(detail='Specified role is unrecognized')
 
+        # Create dummy user and tokens based on token payload
         user = TokenUser({
             'user_id': '{}/{}'.format(name.replace(' ', ''), role),
         })
-        token = AccessToken.for_user(user)
-        token['name'] = name
-        token['team'] = team
-        token['role'] = role
+        refresh_token = RefreshToken.for_user(user)
+        refresh_token['name'] = name
+        refresh_token['team'] = team
+        refresh_token['role'] = role
 
         return Response({
             'status': 200,
             'name': name,
             'team': team,
             'role': role,
-            'access_token': str(token),
+            'access_token': str(refresh_token.access_token),
+            'refresh_token': str(refresh_token),
         })
