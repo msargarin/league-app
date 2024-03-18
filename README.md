@@ -2,65 +2,89 @@
 
 A complete app for your league's data needs.
 
-<br/>
+This project was bootstrapped with [Vite](https://vitejs.dev/).
 
 ## Requirements
 
 - Python (3.8, 3.9, 3.10, 3.11, 3.12)
-
-<br/>
+- NodeJS (>18)
 
 ## How to Use
 
-### Setup the backend
+First step is to download/clone this [project](https://github.com/msargarin/league-app/).
 
-1. Download and install any supported python version from [here](/https://www.python.org/downloads/).
-2. Download/clone this [project](/https://github.com/msargarin/league-app/).
-3. Open a terminal or command prompt then navigate to the project's `backend` folder.
+### Setup the Django backend
+
+1. Download and install any supported python version from [here](https://www.python.org/downloads/).
+2. Open a terminal or command prompt then navigate to the project's `backend` folder.
 
 ```bash
 $ cd backend
 ```
 
-4. Install virtualenv.
+3. Install virtualenv.
 
 ```bash
 $ pip install virtualenv
 ```
 
-5. Create a virtual environment with virtualenv.
+4. Create a virtual environment with virtualenv.
 
 ```bash
 $ virtualenv env
 ```
 
-6. Install libraries specified in `requirements.txt`.
+5. Install libraries specified in `requirements.txt`.
 
 ```bash
 $ pip install -r requirements.txt
 ```
 
-7. Set environment variables by creating a `.env` file from `.env.example`.
+6. Set environment variables by creating a `.env` file from `.env.example`.
 
-8. Create database tables.
+7. Create database tables.
 
 ```bash
 $ python manage.py migrate
 ```
 
-9. Create dummy data.
+8. Create dummy data.
 
 ```bash
 $ python manage.py populate_database
 ```
 
-10. Run the development server
+9. Run the development server
 
 ```bash
 $ python manage.py runserver
 ```
 
-<br/>
+### Setup the React frontnend
+
+1. Download and install any supported nodejs version from [here](https://nodejs.org/en/).
+2. Open a terminal or command prompt then navigate to the project's `frontend` folder.
+
+```bash
+$ cd frontend
+```
+
+3. Install dependencies.
+
+```bash
+$ npm i
+```
+
+4. Run the development server.
+
+```bash
+$ npm run dev
+```
+
+### Go to your browser
+
+1. The React app should now be accessible on your browser at [`http://localhost5173`](http://localhost5173)
+   <br/>
 
 ## Dependencies
 
@@ -71,4 +95,16 @@ $ python manage.py runserver
 - Django Rest Framework
 - python-dotenv
 - djangorestframework-simplejwt
+- django-cors-headers
 - coverage
+
+### React
+
+- react-router
+- react-router-dom
+- flowbite
+- flowbite-react
+
+## Attributions
+
+Special thanks to `mattc0m` and his awesome tournament bracket styling at [codepen](https://codepen.io/mattc0m/pen/gByvpw) where the brackets for this project has been drived from.
