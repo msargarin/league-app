@@ -15,8 +15,9 @@ class APISerializerTests(TestCase):
         team_c = Team.objects.create(name='Team C')
 
         # Create games
+        test_game = Game.objects.create(
+            team_a=team_a, team_a_score=100, team_b=team_b, team_b_score=110)  # Game with teams A and B
         Game.objects.bulk_create([
-            Game(team_a=team_a, team_a_score=100, team_b=team_b, team_b_score=110),  # Game with teams A and B
             Game(team_a=team_c, team_a_score=100, team_b=team_a, team_b_score=110),  # Game with teams C and A
             Game(team_a=team_b, team_a_score=100, team_b=team_c, team_b_score=110),  # Game with teams B and C
         ])
@@ -28,21 +29,16 @@ class APISerializerTests(TestCase):
         # Count should be the same
         self.assertEqual(games.count(), len(serializer.data))
 
-        # Serialized data should have team_a, team_a_score, team_b and team_b_score keys
-        serialized_game = serializer.data[0]
-        self.assertIn('pk', serialized_game)
-        self.assertIn('team_a', serialized_game)
-        self.assertIn('team_a_pk', serialized_game)
-        self.assertIn('team_a_score', serialized_game)
-        self.assertIn('team_b', serialized_game)
-        self.assertIn('team_b_pk', serialized_game)
-        self.assertIn('team_b_score', serialized_game)
-
-        # Serialized game should have team names
-        game = games.first()
-        serializer = GameSerializer(game)
-        self.assertEqual(game.team_a.name, serializer.data['team_a'])
-        self.assertEqual(game.team_b.name, serializer.data['team_b'])
+        # Serialized data should have correct data fields:
+        #  pk, team_a, team_a_pk, team_a_score, team_b, team_b_pk and team_b_score
+        serializer = GameSerializer(test_game)
+        self.assertEqual(test_game.pk, serializer.data.get('pk', None))
+        self.assertEqual(test_game.team_a.name, serializer.data.get('team_a', None))
+        self.assertEqual(test_game.team_a.pk, serializer.data.get('team_a_pk', None))
+        self.assertEqual(test_game.team_a_score, serializer.data.get('team_a_score', None))
+        self.assertEqual(test_game.team_b.name, serializer.data.get('team_b', None))
+        self.assertEqual(test_game.team_b.pk, serializer.data.get('team_b_pk', None))
+        self.assertEqual(test_game.team_b_score, serializer.data.get('team_b_score', None))
 
     def test_team_serializer(self):
         '''
@@ -54,10 +50,8 @@ class APISerializerTests(TestCase):
         Team.objects.create(name='Team C')
 
         # Create players
-        Player.objects.bulk_create([
-            Player(team=team_a, name='Player A'),
-            Player(team=team_a, name='Player B'),
-        ])
+        player_a = Player.objects.create(team=team_a, name='Player A')
+        player_b = Player.objects.create(team=team_a, name='Player B')
 
         # Query teams
         teams = Team.objects.all()
@@ -72,14 +66,27 @@ class APISerializerTests(TestCase):
         serialized_team = serializer = TeamSerializer(team_a)
         self.assertEqual(team_a.players.count(), len(serialized_team.data['players']))
 
-        # Serialized data should have name, average_score and players keys
-        self.assertIn('name', serialized_team.data)
-        self.assertIn('average_score', serialized_team.data)
-        self.assertIn('players', serialized_team.data)
-        self.assertIn('pk', serialized_team.data['players'][0])
-        self.assertIn('name', serialized_team.data['players'][0])
-        self.assertIn('average_score', serialized_team.data['players'][0])
-        self.assertIn('total_games_played', serialized_team.data['players'][0])
+        # Serialized data should have correct data fields:
+        #  - name, average_score and players list
+        #  - each item in players list should have pk, name average_score and total_games_played
+        self.assertEqual(team_a.name, serialized_team.data.get('name', None))
+        self.assertEqual(str(team_a.average_score), serialized_team.data.get('average_score', None))
+
+        players = [
+            {
+                'pk': player_a.pk,
+                'name': player_a.name,
+                'average_score': player_a.average_score,
+                'total_games_played': player_a.total_games_played,
+            },
+            {
+                'pk': player_b.pk,
+                'name': player_b.name,
+                'average_score': player_b.average_score,
+                'total_games_played': player_b.total_games_played,
+            }
+        ]
+        self.assertListEqual(players, serialized_team.data.get('players', None))
 
     def test_player_serializer(self):
         '''
@@ -89,8 +96,8 @@ class APISerializerTests(TestCase):
         team = Team.objects.create(name='Team A')
 
         # Create players
+        player_a = Player.objects.create(team=team, name='Player A')
         Player.objects.bulk_create([
-            Player(team=team, name='Player A'),
             Player(team=team, name='Player B'),
             Player(team=team, name='Player C'),
         ])
@@ -104,12 +111,13 @@ class APISerializerTests(TestCase):
         # Count should be the same
         self.assertEqual(players.count(), len(serializer.data))
 
-        # Serialized data should have team, name average_score and total_games_played keys
-        self.assertIn('team', serializer.data[0])
-        self.assertIn('team_pk', serializer.data[0])
-        self.assertIn('name', serializer.data[0])
-        self.assertIn('average_score', serializer.data[0])
-        self.assertIn('total_games_played', serializer.data[0])
+        # Serialized data should have correct data fields:
+        #  - team, team_pk, name, average_score, total_games_played
+        serializer = PlayerSerializer(player_a)
+        self.assertEqual(player_a.team.pk, serializer.data.get('team_pk', None))
+        self.assertEqual(player_a.name, serializer.data.get('name', None))
+        self.assertEqual(str(player_a.average_score), serializer.data.get('average_score', None))
+        self.assertEqual(player_a.total_games_played, serializer.data.get('total_games_played', None))
 
     def test_games_per_round_serializer(self):
         '''
