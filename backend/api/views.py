@@ -7,7 +7,7 @@ from rest_framework_simplejwt.models import TokenUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
-from api.serializers import GamesPerRoundSerializer, GameSerializer, TeamSerializer, PlayerSerializer
+from api.serializers import GamesPerRoundSerializer, TeamSerializer, PlayerSerializer
 from league.models import Game, Team, Player, Coach
 from league.permissions import (
     IsAtLeastPlayer, IsAtLeastCoach, TeamCoachOrAdmin, PlayersTeamCoachOrAdmin, ACCOUNT_LEVEL_ADMIN,
@@ -23,41 +23,6 @@ class GamesPerRoundList(APIView):
     ]
     def get(self, request, format=None):
         return Response(GamesPerRoundSerializer(Game.objects.all()).data)
-
-
-class GameList(generics.ListAPIView):
-    '''
-    Returns a list of all games in a league
-    '''
-    serializer_class = GameSerializer
-    http_method_names = ['get', 'options']
-    permission_classes = [
-        permissions.IsAuthenticated,
-        IsAtLeastPlayer
-    ]
-
-    def get_queryset(self):
-        return Game.objects.all()
-
-
-# TODO: Could be deleted if no longer needed
-class PlayerList(generics.ListAPIView):
-    '''
-    Returns a list of all players in a team
-    '''
-    serializer_class = PlayerSerializer
-    http_method_names = ['get', 'options']
-    permission_classes = [
-        permissions.IsAuthenticated,
-        IsAtLeastCoach
-    ]
-
-    def get_queryset(self):
-        team_id = self.kwargs.get('team_id', None)
-        if team_id is None:
-            return Player.objects.all()
-        else:
-            return Player.objects.filter(team__id=team_id)
 
 
 class TeamDetails(generics.RetrieveAPIView):
