@@ -9,6 +9,8 @@ This project was bootstrapped with [Vite](https://vitejs.dev/).
 - Python (3.8, 3.9, 3.10, 3.11, 3.12)
 - NodeJS (>18)
 
+<br/>
+
 ## How to Use
 
 First step is to download/clone this [project](https://github.com/msargarin/league-app/).
@@ -40,7 +42,7 @@ $ virtualenv env
 $ pip install -r requirements.txt
 ```
 
-6. Set environment variables by creating a `.env` file from `.env.example`.
+6. Find the `league` folder create a copy of `.env.example` in the same folder, rename the copy to `.env` then set environment variables.
 
 7. Create database tables.
 
@@ -84,7 +86,30 @@ $ npm run dev
 ### Go to your browser
 
 1. The React app should now be accessible on your browser at [`http://localhost5173`](http://localhost5173)
-   <br/>
+2. Select your preferred `role`, login and start exploring!
+
+<br/>
+
+## How it works
+
+### Authentication
+
+The backend has an endpoint exposed for creating access tokens. This endpoint requires a `role` payload which it then uses to determine the claims in the created token. The created token will have `name`, `role` and `team` claims.
+
+For an admin role, the team will be set to `null` and the name will be set to a single hardcoded name. For the coach and player roles, a random coach or player will be selected and the token claims will be populated accordingly. This allows you to login with just the role.
+
+Tokens are refreshed automatically upon expiry.
+
+### Authorization
+
+Resources are restricted to a logged in user's role:
+- Admins have access to everything
+- Coaches have access to their own team and players but not to other teams or players of other teams
+- Players can only view the tournament brackets
+
+Authorization is enforced on the backend but the frontend also clue in users to what they can do (eg. players do not see a cursor when hovering over team names in the tournament bracket). Users are informed if they try to access a resource they do not have access to.
+
+<br/>
 
 ## Dependencies
 
