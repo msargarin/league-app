@@ -13,7 +13,7 @@ This project was bootstrapped with [Vite](https://vitejs.dev/).
 
 ## How to Use
 
-First step is to download/clone this [project](https://github.com/msargarin/league-app/).
+First step is to download/clone the project.
 
 ### Setup the Django backend
 
@@ -42,7 +42,7 @@ $ virtualenv env
 $ pip install -r requirements.txt
 ```
 
-6. Find the `league` folder create a copy of `.env.example` in the same folder, rename the copy to `.env` then set environment variables.
+6. Find the `league` folder, create a copy of `.env.example` in the same folder, rename the copy to `.env` then set environment variables.
 
 7. Create database tables.
 
@@ -56,13 +56,13 @@ $ python manage.py migrate
 $ python manage.py populate_database
 ```
 
-9. Run the development server
+9. Run the development server.
 
 ```bash
 $ python manage.py runserver
 ```
 
-### Setup the React frontnend
+### Setup the React frontend
 
 1. Download and install any supported nodejs version from [here](https://nodejs.org/en/).
 2. Open a terminal or command prompt then navigate to the project's `frontend` folder.
@@ -85,7 +85,7 @@ $ npm run dev
 
 ### Go to your browser
 
-1. The React app should now be accessible on your browser at [`http://localhost5173`](http://localhost5173)
+1. The React app should now be accessible on your browser at [`http://localhost:5173`](http://localhost:5173)
 2. Select your preferred `role`, login and start exploring!
 
 <br/>
@@ -132,4 +132,4 @@ Authorization is enforced on the backend but the frontend also clue in users to 
 
 ## Attributions
 
-Special thanks to `mattc0m` and his awesome tournament bracket styling at [codepen](https://codepen.io/mattc0m/pen/gByvpw) where the brackets for this project has been drived from.
+Special thanks to `mattc0m` and his awesome tournament bracket styling at [codepen](https://codepen.io/mattc0m/pen/gByvpw) where the brackets for this project has been derived from.
