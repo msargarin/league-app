@@ -1,5 +1,8 @@
 import { Button, Card, Label, Select } from "flowbite-react";
+import { GiBasketballBall } from "react-icons/gi";
+
 import { useRef } from "react";
+import { getAcessToken } from "../utils/api";
 
 const LoginPage = function ({ setUser }) {
   const roleSelect = useRef();
@@ -7,38 +10,16 @@ const LoginPage = function ({ setUser }) {
     e.preventDefault();
 
     // Request for access token based on selected role
-    await fetch("http://localhost:8000/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ role: roleSelect.current.value }),
-    }).then((res) => {
-      if (res.ok) {
-        res.json().then((data) => {
-          // Set user to 'authenticated' user
-          setUser({
-            name: data.name,
-            team: data.team,
-            role: data.role,
-            token: data.access_token,
-          });
-        });
-      }
-    });
+    getAcessToken(roleSelect.current.value, setUser);
   };
 
   return (
     <div className="flex flex-col items-center justify-center px-6 lg:h-screen lg:gap-y-12">
-      <div className="my-6 flex items-center gap-x-1 lg:my-0">
-        <img
-          alt="Flowbite logo"
-          src="https://flowbite.com/docs/images/logo.svg"
-          className="mr-3 h-12"
-        />
-        <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
+      <div className="my-6 flex items-center gap-x-1  lg:my-0">
+        <GiBasketballBall className="text-5xl mr-1 text-teal-600 dark:text-teal-200" />
+        <h1 className="self-center whitespace-nowrap text-5xl font-semibold dark:text-white text-teal-900">
           League App
-        </span>
+        </h1>
       </div>
       <Card
         horizontal
@@ -47,9 +28,9 @@ const LoginPage = function ({ setUser }) {
         <form onSubmit={(e) => handleLogin(e)}>
           <div className="mb-4 flex flex-col gap-y-3">
             <Label htmlFor="role">
-              <h1 className="mb-3 text-2xl font-bold dark:text-white md:text-3xl">
+              <h2 className="mb-3 text-xl font-semibold dark:text-white md:text-3xl">
                 Choose your role
-              </h1>
+              </h2>
             </Label>
             <Select id="role" ref={roleSelect} required>
               <option value="admin">Admin</option>
@@ -59,7 +40,7 @@ const LoginPage = function ({ setUser }) {
           </div>
           <div className="mb-6">
             <Button type="submit" className="w-full">
-              Login
+              LOGIN
             </Button>
           </div>
         </form>

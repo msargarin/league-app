@@ -4,12 +4,13 @@ import Bracket from "../components/Bracket";
 import { useEffect, useState } from "react";
 import { callApi } from "../utils/api";
 
-const HomePage = function ({ user }) {
+const HomePage = function ({ user, setUser }) {
   const [games, setGames] = useState(null);
 
+  // We will add the `user` as a dependency so when the access token is refreshed, the data will too
   useEffect(() => {
-    callApi("http://localhost:8000/games/per-round", user.token, setGames);
-  }, []);
+    callApi("http://localhost:8000/games/per-round", user, setUser, setGames);
+  }, [user]);
 
   return (
     <div className="mb-4 w-full">

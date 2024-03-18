@@ -12,16 +12,14 @@ const Bracket = function ({ user, games }) {
     <div className="bracket-theme bracket-theme-dark overflow-auto m-auto mt-4 rounded">
       <div className="bracket xl:justify-center">
         {games ? (
-          games.map((round, i) => {
+          games.map((round, index) => {
             return (
-              <div className="column" key={i}>
+              <div className="column" key={index}>
                 {round.map((game) => {
                   return (
                     <div
                       key={game.id}
                       className={`match ${
-                        user.role != "player" ? "cursor-pointer" : ""
-                      } ${
                         game.team_a_score > game.team_b_score
                           ? "winner-top"
                           : "winner-bottom"
@@ -29,9 +27,15 @@ const Bracket = function ({ user, games }) {
                       `}
                     >
                       <div
-                        className="match-top team"
+                        className={`match-top team ${
+                          user.role == "admin" ||
+                          (user.role == "coach" && user.team == game.team_a)
+                            ? "cursor-pointer"
+                            : ""
+                        }`}
                         onClick={
-                          user.role != "player"
+                          user.role == "admin" ||
+                          (user.role == "coach" && user.team == game.team_a)
                             ? () => handleClick(game.team_a_pk)
                             : () => {}
                         }
@@ -40,9 +44,15 @@ const Bracket = function ({ user, games }) {
                         <span className="score">{game.team_a_score}</span>
                       </div>
                       <div
-                        className="match-bottom team"
+                        className={`match-bottom team ${
+                          user.role == "admin" ||
+                          (user.role == "coach" && user.team == game.team_b)
+                            ? "cursor-pointer"
+                            : ""
+                        }`}
                         onClick={
-                          user.role != "player"
+                          user.role == "admin" ||
+                          (user.role == "coach" && user.team == game.team_b)
                             ? () => handleClick(game.team_b_pk)
                             : () => {}
                         }

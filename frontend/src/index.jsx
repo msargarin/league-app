@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Flowbite } from "flowbite-react";
 
 import "../index.css";
 import theme from "./flowbite-theme";
-import { Flowbite } from "flowbite-react";
 
 import App from "./App";
 
